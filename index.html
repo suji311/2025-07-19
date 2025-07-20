@@ -3,54 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>방탈출: 동물 알아보기</title>
+    <title>방탈출: 학교 교칙 알아보기 (순차진행)</title>
     <style>
         /* 기본 설정 */
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* 스크롤 방지 */
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             background-color: #333;
         }
 
-        /* === 타이머 스타일 (추가) === */
+        /* 타이머 스타일 */
         #timer {
-            display: none; /* 처음에는 숨김 */
-            position: fixed;
-            top: 15px;
-            left: 50%;
+            display: none; position: fixed;
+            top: 15px; left: 50%;
             transform: translateX(-50%);
             background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            z-index: 1500; /* 모달보다 위에 있도록 설정 */
+            color: white; padding: 10px 25px;
+            border-radius: 20px; font-size: 1.5rem;
+            font-weight: bold; z-index: 1500;
             border: 2px solid white;
         }
 
         /* 시작 화면 스타일 */
         #start-screen {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             background: linear-gradient(to bottom right, #4a90e2, #2a64a3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            color: white;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; color: white;
         }
         .start-box {
             background-color: rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 40px; border-radius: 20px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .start-box h1 { margin-top: 0; font-size: 2.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
         .start-box p { font-size: 1.1rem; margin-bottom: 30px; }
@@ -64,27 +50,22 @@
             background-color: #f5a623; color: white;
             padding: 15px 40px; border: none;
             border-radius: 10px; font-size: 1.2rem;
-            font-weight: bold; cursor: pointer;
-            margin-top: 20px;
+            font-weight: bold; cursor: pointer; margin-top: 20px;
             transition: background-color 0.3s, transform 0.2s;
         }
         #start-game-btn:hover { background-color: #d88e14; transform: scale(1.05); }
 
-        /* 게임 컨테이너: 처음에는 숨김 처리 */
-        #game-container {
-            display: none; /* 시작 화면에서 보이지 않도록 수정 */
-            position: relative;
-            width: 100%;
-            max-width: 1280px;
+        /* 스테이지 컨테이너 */
+        .stage-container {
+            display: none; position: relative;
+            width: 100%; max-width: 1280px;
             margin: auto;
         }
-
-        #game-container img {
-            width: 100%;
-            height: auto;
-            display: block;
+        .stage-container img {
+            width: 100%; height: auto; display: block;
         }
 
+        /* 클릭 가능한 오브젝트 */
         .interactive-object {
             position: absolute; cursor: pointer;
             background-color: rgba(255, 255, 0, 0.0);
@@ -92,46 +73,66 @@
             border-radius: 10px;
             transition: background-color 0.3s, border 0.3s;
         }
-
         .interactive-object:hover {
             background-color: rgba(255, 255, 0, 0.4);
             border: 2px solid yellow;
         }
-        
-        #obj-popcorn { top: 38%; left: 7%; width: 14%; height: 28%; }
-        #obj-chair { top: 75%; left: 32%; width: 15%; height: 20%; }
-        #obj-wall { top: 35%; left: 80%; width: 15%; height: 30%; }
-        #obj-man { top: 58%; left: 45%; width: 10%; height: 25%; }
-        #obj-screen { top: 15%; left: 28%; width: 45%; height: 35%; }
+        /* 잠긴 오브젝트 스타일 */
+        .interactive-object.locked {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .interactive-object.locked:hover {
+             background-color: transparent;
+             border-color: transparent;
+        }
+        /* 해결된 오브젝트 스타일 */
+        .interactive-object.solved {
+            cursor: default; pointer-events: none;
+        }
+        .interactive-object.solved:hover {
+             background-color: transparent;
+             border-color: transparent;
+        }
 
-        /* 모달창 공통 스타일 */
+
+        #s1-obj-skeleton { top: 25%; left: 10%; width: 12%; height: 50%; }
+        #s1-obj-tools { top: 65%; left: 80%; width: 20%; height: 20%; }
+        #s1-obj-box { top: 70%; left: 40%; width: 15%; height: 30%; }
+        #s1-obj-door { top: 0%; left: 50%; width: 12%; height: 65%; }
+        #s1-obj-board { top: 0%; left: 0%; width: 0.1%; height: 0.1%; }
+
+        #s2-obj-statue { top: 35%; left: 45%; width: 10%; height: 50%; }
+        #s2-obj-piano { top: 60%; left: 5%; width: 35%; height: 35%; }
+        #s2-obj-desk { top: 50%; left: 88%; width: 35%; height: 30%; }
+        #s2-obj-door { top: 35%; left: 80%; width: 15%; height: 60%; }
+        #s2-obj-board { top: 0%; left: 0%; width: 30%; height: 30%; }
+
+        #s3-obj-soccer-ball { top: 80%; left: 45%; width: 10%; height: 15%; }
+        #s3-obj-goalpost { top: 5%; left: 65%; width: 25%; height: 40%; }
+        #s3-obj-swing { top: 27%; left: 30%; width: 15%; height: 35%; }
+        #s3-obj-exit-door { top: 10%; left: 0%; width: 20%; height: 35%; }
+        #s3-obj-signboard { top: 0%; left: 0.1%; width: 0.1%; height: 0.1%; }
+
         .modal-wrapper {
             display: none; position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.75);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            justify-content: center; align-items: center; z-index: 1000;
         }
-
         .modal-content {
-            background-color: white;
-            padding: 25px; border-radius: 15px;
-            text-align: center; width: 90%;
-            max-width: 400px;
+            background-color: white; padding: 25px;
+            border-radius: 15px; text-align: center;
+            width: 90%; max-width: 400px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-
         .modal-content h2 { margin-top: 0; }
         .modal-content p { margin-bottom: 20px; line-height: 1.6; }
         .modal-content input {
-            width: 80%; padding: 10px;
-            margin-bottom: 10px; text-align: center;
-            font-size: 1.2rem; border: 1px solid #ccc;
-            border-radius: 5px;
+            width: 80%; padding: 10px; margin-bottom: 10px;
+            text-align: center; font-size: 1.2rem;
+            border: 1px solid #ccc; border-radius: 5px;
         }
-
         .modal-content button {
             padding: 12px 24px; border: none;
             background-color: #007bff; color: white;
@@ -139,52 +140,46 @@
             font-size: 1rem; font-weight: bold;
         }
         .modal-content button:hover { background-color: #0056b3; }
+        .modal-content button:disabled, .modal-content input:disabled {
+            background-color: #ccc; cursor: not-allowed;
+        }
+        .modal-content button:hover:disabled { background-color: #ccc; }
         .close-btn { background-color: #6c757d !important; }
-        .close-btn:hover { background-color: #5a6268 !important; }
+        #next-stage-btn { background-color: #28a745 !important; }
 
         .feedback {
-            margin-top: 15px;
-            font-weight: bold;
-            min-height: 20px;
+            margin-top: 15px; font-weight: bold; min-height: 20px;
         }
 
-        /* 메모리 카드 게임 스타일 */
-        #memory-board {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+        .memory-board {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 10px; margin-bottom: 20px;
         }
         .card {
-            aspect-ratio: 1 / 1;
-            position: relative; cursor: pointer;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
+            aspect-ratio: 1 / 1; position: relative; cursor: pointer;
+            transform-style: preserve-3d; transition: transform 0.6s;
         }
         .card.flipped { transform: rotateY(180deg); }
         .card.matched { cursor: default; }
-
         .card-face {
-            position: absolute;
-            width: 100%; height: 100%;
-            backface-visibility: hidden;
-            display: flex; justify-content: center; align-items: center;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex;
+            justify-content: center; align-items: center;
             font-size: clamp(1.5rem, 6vw, 2.5rem);
             border-radius: 8px; overflow: hidden;
         }
-        .card-front { background-color: #4a90e2; color: white; }
+        #s1-memory-board .card-front { background-color: #4a90e2; }
+        #s2-memory-board .card-front { background-color: #5d4037; }
+        #s3-memory-board .card-front { background-color: #4caf50; }
         .card-back { background-color: #f0f0f0; transform: rotateY(180deg); }
     </style>
 </head>
 <body>
     
-    <!-- 타이머 UI (추가) -->
     <div id="timer">00:00</div>
-
-    <!-- 시작 화면 UI -->
     <div id="start-screen">
         <div class="start-box">
-            <h1>방탈출: 동물 알아보기</h1>
+            <h1>방탈출: 학교 교칙 알아보기</h1>
             <p>참가자 정보를 입력하고 게임을 시작하세요.</p>
             <input type="number" id="player-grade" placeholder="학년">
             <input type="number" id="player-class" placeholder="반">
@@ -193,247 +188,264 @@
         </div>
     </div>
 
-    <!-- 게임 컨테이너 -->
-    <div id="game-container">
-        <!-- 배경 이미지 -->
-        <img src="https://i.ibb.co/sJ5qjbgx/Whisk-eef7dcd82b-5.jpg" alt="영화관 배경">
-
-        <!-- 클릭 가능한 오브젝트 (div) -->
-        <div class="interactive-object" id="obj-popcorn" title="팝콘 기계"></div>
-        <div class="interactive-object" id="obj-chair" title="의자"></div>
-        <div class="interactive-object" id="obj-wall" title="벽"></div>
-        <div class="interactive-object" id="obj-man" title="중앙의 남자"></div>
-        <div class="interactive-object" id="obj-screen" title="영화관 화면 (탈출구)"></div>
+    <!-- STAGE 1: 과학실 -->
+    <div id="stage-1" class="stage-container">
+        <img src="https://i.ibb.co/NdCcsNzd/1-final.jpg" alt="과학실 배경">
+        <div class="interactive-object" id="s1-obj-board"></div>
+        <div class="interactive-object" id="s1-obj-skeleton"></div>
+        <div class="interactive-object locked" id="s1-obj-tools"></div>
+        <div class="interactive-object" id="s1-obj-box"></div>
+        <div class="interactive-object" id="s1-obj-door"></div>
+    </div>
+    <!-- STAGE 2: 음악실 -->
+    <div id="stage-2" class="stage-container">
+        <img src="https://i.ibb.co/nMsGycG4/Whisk-c32be9cb17.jpg" alt="음악실 배경">
+        <div class="interactive-object" id="s2-obj-board"></div>
+        <div class="interactive-object" id="s2-obj-statue"></div>
+        <div class="interactive-object locked" id="s2-obj-desk"></div>
+        <div class="interactive-object" id="s2-obj-piano"></div>
+        <div class="interactive-object" id="s2-obj-door"></div>
+    </div>
+    <!-- STAGE 3: 운동장 -->
+    <div id="stage-3" class="stage-container">
+        <img src="https://i.ibb.co/1GdxBwz7/Whisk-98370763db.jpg" alt="운동장 배경">
+        <div class="interactive-object" id="s3-obj-signboard"></div>
+        <div class="interactive-object" id="s3-obj-soccer-ball"></div>
+        <div class="interactive-object locked" id="s3-obj-goalpost"></div>
+        <div class="interactive-object" id="s3-obj-swing"></div>
+        <div class="interactive-object" id="s3-obj-exit-door"></div>
     </div>
 
-    <!-- 각종 모달 (HTML 구조는 변경 없음) -->
-    <div id="modal-hint" class="modal-wrapper">
-        <div class="modal-content">
-            <h2>힌트 발견!</h2>
-            <p>탈출을 위한 비밀번호는 어딘가에서 찾을 수 있는 '두 개의 숫자'를 순서대로 조합한 네 자리 숫자입니다.</p>
-            <button class="close-btn">닫기</button>
-        </div>
-    </div>
-    <div id="modal-problem1" class="modal-wrapper">
-        <div class="modal-content">
-            <h2>첫 번째 문제</h2>
-            <p>"안녕? 난 이 영화관의 <strong>1번</strong> 상영관 담당자야. <br>이 숫자를 두 자리로 만들면 비밀번호의 첫 부분이 될 거야."</p>
-            <input type="text" id="answer1" placeholder="두 자리 숫자 입력" maxlength="2">
-            <button id="submit1">확인</button>
-            <p id="feedback1" class="feedback"></p>
-        </div>
-    </div>
-    <div id="modal-problem2" class="modal-wrapper">
-        <div class="modal-content">
-            <h2>두 번째 문제</h2>
-            <p>의자에 티켓이 떨어져 있다. <br>"이 특별석의 가격은 <strong>18,000원</strong>입니다."<br>가격에서 0을 제외한 앞 두 자리 숫자가 비밀번호의 두 번째 부분인 것 같다.</p>
-            <input type="text" id="answer2" placeholder="두 자리 숫자 입력" maxlength="2">
-            <button id="submit2">확인</button>
-            <p id="feedback2" class="feedback"></p>
-        </div>
-    </div>
-    <div id="modal-minigame" class="modal-wrapper">
-        <div class="modal-content">
-            <h2>동물 카드 맞추기</h2>
-            <div id="memory-board"></div>
-            <p id="minigame-feedback" class="feedback"></p>
-            <button class="close-btn">나가기</button>
-        </div>
-    </div>
-    <div id="modal-final" class="modal-wrapper">
-        <div class="modal-content">
-            <h2>탈출 비밀번호</h2>
-            <p>찾아낸 네 자리 비밀번호를 입력하세요.</p>
-            <input type="password" id="final-password" maxlength="4" placeholder="****" inputmode="numeric">
-            <button id="submit-final">탈출!</button>
-            <p id="final-feedback" class="feedback"></p>
-        </div>
-    </div>
+    <!-- 모달 영역 (HTML 구조는 이전과 동일) -->
+    <div id="s1-modal-hint" class="modal-wrapper"><div class="modal-content"><h2>기본 규칙</h2><p>칠판에 분필로 쓰여있다.<br>"탈출 비밀번호는 이 과학실에서 찾을 수 있는 **두 개의 교칙 번호**를 조합한 네 자리 숫자다."</p><button class="close-btn">닫기</button></div></div>
+    <div id="s1-modal-problem1" class="modal-wrapper"><div class="modal-content"><h2>첫 번째 문제</h2><p>해골 모형 목에 작은 메모가 걸려있다.<br><strong>"교칙 제 03조: 복도에서는 항상 조용히, 천천히!"</strong><br>이 교칙의 조항 번호가 비밀번호의 첫 부분인 것 같다.</p><input type="text" id="s1-answer1" placeholder="두 자리 숫자" maxlength="2"><button id="s1-submit1">확인</button><p id="s1-feedback1" class="feedback"></p></div></div>
+    <div id="s1-modal-problem2" class="modal-wrapper"><div class="modal-content"><h2>두 번째 문제</h2><p>위험해 보이는 실험도구 앞에 경고문이 붙어있다.<br><strong>"교칙 제 30조: 선생님의 허락 없이는 절대 실험 도구를 만지지 말 것!"</strong><br>이 경고문의 교칙 번호가 비밀번호의 뒷부분이 아닐까?</p><input type="text" id="s1-answer2" placeholder="두 자리 숫자" maxlength="2"><button id="s1-submit2">확인</button><p id="s1-feedback2" class="feedback"></p></div></div>
+    <div id="s1-modal-minigame" class="modal-wrapper"><div class="modal-content"><h2>과학 도구 카드 맞추기</h2><div id="s1-memory-board" class="memory-board"></div><p id="s1-minigame-feedback" class="feedback"></p><button class="close-btn">나가기</button></div></div>
+    <div id="s1-modal-final" class="modal-wrapper"><div class="modal-content"><h2>[과학실] 탈출 비밀번호</h2><p>찾아낸 네 자리 비밀번호를 입력하세요.</p><input type="password" id="s1-final-password" maxlength="4" placeholder="****"><button id="s1-submit-final">탈출!</button><p id="s1-final-feedback" class="feedback"></p></div></div>
+    <div id="s2-modal-hint" class="modal-wrapper"><div class="modal-content"><h2>기본 규칙</h2><p>칠판에 오늘의 급훈이 적혀있다.<br>"탈출의 열쇠는 교칙 안에 있다. **두 개의 교칙 번호**를 찾아라!"</p><button class="close-btn">닫기</button></div></div>
+    <div id="s2-modal-problem1" class="modal-wrapper"><div class="modal-content"><h2>첫 번째 문제</h2><p>베토벤 흉상 아래에 작은 글씨로 교칙이 새겨져 있다.<br><strong>"교칙 제 1조: 다른 학생을 존중하고 배려한다."</strong><br>이 교칙의 조항 번호가 비밀번호의 첫 부분일까? 두 자리로 만들어야 할 것 같다.</p><input type="text" id="s2-answer1" placeholder="두 자리 숫자" maxlength="2"><button id="s2-submit1">확인</button><p id="s2-feedback1" class="feedback"></p></div></div>
+    <div id="s2-modal-problem2" class="modal-wrapper"><div class="modal-content"><h2>두 번째 문제</h2><p>선생님 책상 위, 오래된 메트로놈에 교칙 스티커가 붙어있다.<br><strong>"교칙 제 18조: 수업 시간을 반드시 지킨다."</strong> <br>이 교칙의 조항 번호가 비밀번호의 마지막 두 자리가 틀림없다.</p><input type="text" id="s2-answer2" placeholder="두 자리 숫자" maxlength="2"><button id="s2-submit2">확인</button><p id="s2-feedback2" class="feedback"></p></div></div>
+    <div id="s2-modal-minigame" class="modal-wrapper"><div class="modal-content"><h2>악기 카드 맞추기</h2><div id="s2-memory-board" class="memory-board"></div><p id="s2-minigame-feedback" class="feedback"></p><button class="close-btn">나가기</button></div></div>
+    <div id="s2-modal-final" class="modal-wrapper"><div class="modal-content"><h2>[음악실] 탈출 비밀번호</h2><p>찾아낸 네 자리 비밀번호를 입력하세요.</p><input type="password" id="s2-final-password" maxlength="4" placeholder="****"><button id="s2-submit-final">탈출!</button><p id="s2-final-feedback" class="feedback"></p></div></div>
+    <div id="s3-modal-hint" class="modal-wrapper"><div class="modal-content"><h2>운동장 이용 수칙</h2><p>이 운동장에서 나갈 수 있는 비밀번호는, 이곳에서 찾을 수 있는 **두 개의 교칙 번호**로 이루어져 있다.</p><button class="close-btn">닫기</button></div></div>
+    <div id="s3-modal-problem1" class="modal-wrapper"><div class="modal-content"><h2>첫 번째 문제</h2><p>축구공에 작은 글씨가 쓰여 있다.<br><strong>"교칙 제 01조: 운동장에서는 항상 안전에 유의한다."</strong><br>이 교칙의 번호가 비밀번호의 첫 부분일까? (두 자리로 입력)</p><input type="text" id="s3-answer1" placeholder="두 자리 숫자" maxlength="2"><button id="s3-submit1">확인</button><p id="s3-feedback1" class="feedback"></p></div></div>
+    <div id="s3-modal-problem2" class="modal-wrapper"><div class="modal-content"><h2>두 번째 문제</h2><p>골대에 낡은 스티커가 붙어있다.<br><strong>"교칙 제 04조: 사용한 운동기구는 제자리에 둔다."</strong> <br>이 교칙의 번호가 비밀번호의 뒷부분인 것 같다. (두 자리로 입력)</p><input type="text" id="s3-answer2" placeholder="두 자리 숫자" maxlength="2"><button id="s3-submit2">확인</button><p id="s3-feedback2" class="feedback"></p></div></div>
+    <div id="s3-modal-minigame" class="modal-wrapper"><div class="modal-content"><h2>운동기구 카드 맞추기</h2><div id="s3-memory-board" class="memory-board"></div><p id="s3-minigame-feedback" class="feedback"></p><button class="close-btn">나가기</button></div></div>
+    <div id="s3-modal-final" class="modal-wrapper"><div class="modal-content"><h2>[운동장] 최종 탈출</h2><p>찾아낸 네 자리 비밀번호를 입력하세요.</p><input type="password" id="s3-final-password" maxlength="4" placeholder="****"><button id="s3-submit-final">탈출!</button><p id="s3-final-feedback" class="feedback"></p></div></div>
+    <div id="stage-clear-modal" class="modal-wrapper"><div class="modal-content"><h2 id="clear-title"></h2><p id="clear-message"></p><button id="next-stage-btn">다음 장소로 이동</button></div></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- 변수 선언 영역 ---
             const startScreen = document.getElementById('start-screen');
             const startGameBtn = document.getElementById('start-game-btn');
-            const gameContainer = document.getElementById('game-container');
-            const timerElement = document.getElementById('timer'); // 타이머 요소
-
-            const objects = {
-                popcorn: document.getElementById('obj-popcorn'),
-                chair: document.getElementById('obj-chair'),
-                wall: document.getElementById('obj-wall'),
-                man: document.getElementById('obj-man'),
-                screen: document.getElementById('obj-screen')
-            };
-            const modals = {
-                hint: document.getElementById('modal-hint'),
-                problem1: document.getElementById('modal-problem1'),
-                problem2: document.getElementById('modal-problem2'),
-                minigame: document.getElementById('modal-minigame'),
-                final: document.getElementById('modal-final')
-            };
-
-            // === 타이머 관련 변수 (추가) ===
+            const timerElement = document.getElementById('timer');
             let timerInterval;
             let startTime;
 
-            // --- 이벤트 리스너 영역 ---
+            const showModal = (modalId) => { document.getElementById(modalId).style.display = 'flex'; };
+            const hideModal = (modalId) => { document.getElementById(modalId).style.display = 'none'; };
             
-            // '게임 시작' 버튼 클릭 이벤트 (수정)
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.target.closest('.modal-wrapper').style.display = 'none';
+                });
+            });
+
             startGameBtn.addEventListener('click', () => {
-                startScreen.style.display = 'none'; // 시작 화면 숨기기
-                gameContainer.style.display = 'block'; // 게임 화면 보이기
-                timerElement.style.display = 'block'; // 타이머 보이기
-                
-                // 타이머 시작
+                startScreen.style.display = 'none';
+                document.getElementById('stage-1').style.display = 'block';
+                timerElement.style.display = 'block';
                 startTime = Date.now();
                 timerInterval = setInterval(updateTimer, 1000);
             });
-
-            // 오브젝트 클릭 이벤트
-            objects.popcorn.addEventListener('click', () => showModal(modals.hint));
-            objects.man.addEventListener('click', () => showModal(modals.problem1));
-            objects.chair.addEventListener('click', () => showModal(modals.problem2));
-            objects.wall.addEventListener('click', () => {
-                showModal(modals.minigame);
-                startMemoryGame();
-            });
-            objects.screen.addEventListener('click', () => showModal(modals.final));
-
-            // 모달 닫기 버튼
-            document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.addEventListener('click', () => hideModal(btn.closest('.modal-wrapper')));
-            });
-
-            // 문제 1 정답 처리
-            document.getElementById('submit1').addEventListener('click', () => {
-                const answer = document.getElementById('answer1').value;
-                const feedback = document.getElementById('feedback1');
-                if (answer === '01') {
-                    feedback.textContent = "정답! 비밀번호의 첫 부분 '01'을 찾았다.";
-                    feedback.style.color = 'green';
-                    setTimeout(() => hideModal(modals.problem1), 1500);
-                } else {
-                    feedback.textContent = '아니다. 두 자리 숫자로 만들어야 한다.';
-                    feedback.style.color = 'red';
-                }
-            });
-
-            // 문제 2 정답 처리
-            document.getElementById('submit2').addEventListener('click', () => {
-                const answer = document.getElementById('answer2').value;
-                const feedback = document.getElementById('feedback2');
-                if (answer === '18') {
-                    feedback.textContent = "정답! 비밀번호의 두 번째 부분 '18'을 찾았다.";
-                    feedback.style.color = 'green';
-                    setTimeout(() => hideModal(modals.problem2), 1500);
-                } else {
-                    feedback.textContent = '티켓에 적힌 가격을 다시 잘 보자.';
-                    feedback.style.color = 'red';
-                }
-            });
             
-            // 최종 비밀번호 정답 처리 (수정)
-            document.getElementById('submit-final').addEventListener('click', () => {
-                const password = document.getElementById('final-password').value;
-                const feedback = document.getElementById('final-feedback');
-                if (password === '0118') {
-                    // 타이머 멈추기 (추가)
-                    clearInterval(timerInterval);
-                    timerElement.style.color = '#f5a623'; // 성공 시 타이머 색 변경
-
-                    const finalTime = timerElement.textContent; // 최종 시간 기록
-
-                    // 성공 메시지에 소요 시간 표시
-                    document.querySelector('#modal-final .modal-content').innerHTML = `
-                        <h2>탈출 성공!</h2>
-                        <p style="font-size: 1.2rem; font-weight: bold;">총 소요 시간: ${finalTime}</p>
-                        <p>동물 친구들이 당신을 축하해줍니다!<br>🦓🦒🐘🐒🦁🐅</p>`;
-                    
-                    timerElement.style.display = 'none'; // 상단 타이머 숨기기
-                } else {
-                    feedback.textContent = '비밀번호가 틀렸습니다. 힌트를 다시 확인하세요.';
-                    feedback.style.color = 'red';
-                }
-            });
-
-
-            // --- 함수 영역 ---
-            const showModal = (modal) => { modal.style.display = 'flex'; };
-            const hideModal = (modal) => { modal.style.display = 'none'; };
-
-            // === 타이머 업데이트 함수 (추가) ===
             function updateTimer() {
                 const elapsedTime = Date.now() - startTime;
                 const totalSeconds = Math.floor(elapsedTime / 1000);
                 const minutes = Math.floor(totalSeconds / 60);
                 const seconds = totalSeconds % 60;
-
-                // MM:SS 형식으로 변환
                 const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                
                 timerElement.textContent = formattedTime;
             }
 
-            // --- 메모리 카드 게임 로직 (변경 없음) ---
-            const memoryBoard = document.getElementById('memory-board');
-            const minigameFeedback = document.getElementById('minigame-feedback');
-            const animals = ['🦓', '🦒', '🐘', '🐒', '🦁', '🐅'];
-            let flippedCards = [];
-            let matchedPairs = 0;
-            let lockBoard = false;
+            let currentStage = 1;
+            document.getElementById('next-stage-btn').addEventListener('click', () => {
+                const nextStageNum = ++currentStage;
+                document.querySelectorAll('.stage-container').forEach(s => s.style.display = 'none');
+                document.getElementById(`stage-${nextStageNum}`).style.display = 'block';
+                hideModal('stage-clear-modal');
+            });
 
-            function startMemoryGame() {
-                matchedPairs = 0;
-                lockBoard = false;
-                minigameFeedback.textContent = '';
-                memoryBoard.innerHTML = '';
-                let cardSet = [...animals, ...animals];
-                cardSet.sort(() => 0.5 - Math.random());
-                cardSet.forEach(animal => {
-                    const cardElement = document.createElement('div');
-                    cardElement.classList.add('card');
-                    cardElement.dataset.animal = animal;
-                    cardElement.innerHTML = `
-                        <div class="card-face card-front">?</div>
-                        <div class="card-face card-back">${animal}</div>
-                    `;
-                    cardElement.addEventListener('click', () => flipCard(cardElement));
-                    memoryBoard.appendChild(cardElement);
+            // ==========================================================
+            // --- 스테이지별 이벤트 리스너 설정 함수 (수정된 버전) ---
+            // ==========================================================
+            function setupStageEventListeners(stageNum, puzzles, finalPassword, nextStageMessage) {
+                const problemStatus = {}; // 각 스테이지의 문제 풀이 상태
+
+                puzzles.forEach(p => {
+                    const objEl = document.getElementById(`s${stageNum}-obj-${p.obj}`);
+                    if (!objEl) return;
+                    
+                    if (p.isProblem) {
+                        problemStatus[p.probNum] = false;
+                    }
+
+                    objEl.addEventListener('click', () => {
+                        // 문제가 잠겨있으면 클릭 불가
+                        if (objEl.classList.contains('locked')) {
+                            alert('지금은 조사할 수 없다. 다른 단서를 먼저 찾아보자.');
+                            return;
+                        }
+                        // 이미 해결한 문제는 클릭 불가
+                        if (objEl.classList.contains('solved')) return;
+
+                        if (p.isGame) {
+                            startMemoryGame(stageNum, p.gameData.icons, p.gameData.frontIcon, p.gameData.successMsg);
+                        }
+                        showModal(`s${stageNum}-modal-${p.modal}`);
+                    });
+
+                    if (p.isProblem) {
+                        const submitBtn = document.getElementById(`s${stageNum}-submit${p.probNum}`);
+                        const answerEl = document.getElementById(`s${stageNum}-answer${p.probNum}`);
+                        const feedbackEl = document.getElementById(`s${stageNum}-feedback${p.probNum}`);
+
+                        submitBtn.addEventListener('click', () => {
+                            if (answerEl.value === p.answer) {
+                                feedbackEl.textContent = `정답! 힌트 '${p.answer}'을(를) 찾았다.`;
+                                feedbackEl.style.color = 'green';
+                                
+                                answerEl.disabled = true;
+                                submitBtn.disabled = true;
+                                problemStatus[p.probNum] = true;
+                                objEl.classList.add('solved');
+
+                                // 다음 문제 오브젝트의 'locked' 클래스 제거
+                                const nextProbNum = p.probNum + 1;
+                                const nextObj = puzzles.find(puzzle => puzzle.probNum === nextProbNum);
+                                if (nextObj) {
+                                    document.getElementById(`s${stageNum}-obj-${nextObj.obj}`).classList.remove('locked');
+                                }
+
+                                setTimeout(() => {
+                                    hideModal(`s${stageNum}-modal-${p.modal}`);
+                                }, 1500);
+
+                            } else {
+                                feedbackEl.textContent = '아니다. 단서를 다시 확인해보자.';
+                                feedbackEl.style.color = 'red';
+                            }
+                        });
+                    }
+                });
+
+                document.getElementById(`s${stageNum}-submit-final`).addEventListener('click', () => {
+                    const finalInput = document.getElementById(`s${stageNum}-final-password`);
+                    if (finalInput.value === finalPassword) {
+                        if (stageNum < 3) {
+                            document.getElementById('clear-title').textContent = `스테이지 ${stageNum} 클리어!`;
+                            document.getElementById('clear-message').textContent = nextStageMessage;
+                            hideModal(`s${stageNum}-modal-final`);
+                            showModal('stage-clear-modal');
+                        } else {
+                            clearInterval(timerInterval);
+                            const finalTime = timerElement.textContent;
+                            const finalModal = document.getElementById('s3-modal-final');
+                            finalModal.querySelector('.modal-content').innerHTML = `
+                                <h2>최종 탈출 성공!</h2>
+                                <p style="font-size: 1.2rem; font-weight: bold;">총 소요 시간: ${finalTime}</p>
+                                <p>축하합니다! 모든 교칙을 마스터하고 학교에서 탈출했습니다!</p>`;
+                            timerElement.style.display = 'none';
+                        }
+                    } else {
+                        document.getElementById(`s${stageNum}-final-feedback`).textContent = '비밀번호가 틀렸습니다.';
+                    }
                 });
             }
 
-            function flipCard(card) {
-                if (lockBoard || card.classList.contains('flipped')) return;
-                card.classList.add('flipped');
-                flippedCards.push(card);
-                if (flippedCards.length === 2) {
-                    lockBoard = true;
-                    checkForMatch();
-                }
-            }
+            // --- 스테이지 데이터 정의 및 이벤트 리스너 실행 ---
+            // obj 순서: 첫 번째 문제가 두 번째 문제보다 앞에 와야 함
+            setupStageEventListeners(1, [
+                { obj: 'board', modal: 'hint' },
+                { obj: 'skeleton', modal: 'problem1', isProblem: true, probNum: 1, answer: '03' },
+                { obj: 'tools', modal: 'problem2', isProblem: true, probNum: 2, answer: '30' },
+                { obj: 'box', modal: 'minigame', isGame: true, gameData: { icons: ['🔬', '🧪', '🧫', '🧬', '⚛️', '🥽'], frontIcon: '?', successMsg: '상자를 열었다! 낡은 과학 도구만 가득하다.' } },
+                { obj: 'door', modal: 'final' }
+            ], '0330', '잠겨있던 문이 열리고, 시끄러운 음악 소리가 들려온다...');
 
-            function checkForMatch() {
-                const [card1, card2] = flippedCards;
-                if (card1.dataset.animal === card2.dataset.animal) {
-                    card1.classList.add('matched');
-                    card2.classList.add('matched');
-                    matchedPairs++;
-                    flippedCards = [];
-                    lockBoard = false;
-                    if (matchedPairs === animals.length) {
-                        minigameFeedback.textContent = "모든 동물 카드를 맞췄다! (하지만 여기엔 힌트가 없는 것 같다...)";
-                        minigameFeedback.style.color = 'purple';
-                    }
-                } else {
-                    setTimeout(() => {
-                        card1.classList.remove('flipped');
-                        card2.classList.remove('flipped');
-                        flippedCards = [];
-                        lockBoard = false;
-                    }, 1000);
-                }
+            setupStageEventListeners(2, [
+                { obj: 'board', modal: 'hint' },
+                { obj: 'statue', modal: 'problem1', isProblem: true, probNum: 1, answer: '01' },
+                { obj: 'desk', modal: 'problem2', isProblem: true, probNum: 2, answer: '18' },
+                { obj: 'piano', modal: 'minigame', isGame: true, gameData: { icons: ['🎹', '🎺', '🎻', '🥁', '🎷', '🎸'], frontIcon: '♪', successMsg: '피아노 속 카드를 모두 맞췄다!' } },
+                { obj: 'door', modal: 'final' }
+            ], '0118', '문을 열자 바깥의 시원한 바람과 아이들의 함성 소리가 들린다!');
+
+            setupStageEventListeners(3, [
+                { obj: 'signboard', modal: 'hint' },
+                { obj: 'soccer-ball', modal: 'problem1', isProblem: true, probNum: 1, answer: '01' },
+                { obj: 'goalpost', modal: 'problem2', isProblem: true, probNum: 2, answer: '04' },
+                { obj: 'swing', modal: 'minigame', isGame: true, gameData: { icons: ['⚽', '🏀', '⚾', '🎾', '🏐', '🏸'], frontIcon: '?', successMsg: '모든 카드를 맞췄다! 그네를 신나게 탄 기분이다.' } },
+                { obj: 'exit-door', modal: 'final' }
+            ], '0104');
+
+            // --- 공용 메모리 카드 게임 로직 ---
+            function startMemoryGame(stageNum, iconSet, frontIcon, successMessage) {
+                const boardId = `s${stageNum}-memory-board`;
+                const feedbackId = `s${stageNum}-minigame-feedback`;
+                const memoryBoard = document.getElementById(boardId);
+                const minigameFeedback = document.getElementById(feedbackId);
+                
+                let flippedCards = [];
+                let lockBoard = false;
+                let matchedPairs = 0;
+                minigameFeedback.textContent = '';
+                memoryBoard.innerHTML = '';
+                let cardSet = [...iconSet, ...iconSet];
+                cardSet.sort(() => 0.5 - Math.random());
+
+                cardSet.forEach(icon => {
+                    const cardElement = document.createElement('div');
+                    cardElement.classList.add('card');
+                    cardElement.dataset.icon = icon;
+                    cardElement.innerHTML = `<div class="card-face card-front">${frontIcon}</div><div class="card-face card-back">${icon}</div>`;
+                    cardElement.addEventListener('click', () => {
+                        if (lockBoard || cardElement.classList.contains('flipped')) return;
+                        cardElement.classList.add('flipped');
+                        flippedCards.push(cardElement);
+                        if (flippedCards.length === 2) {
+                            lockBoard = true;
+                            const [card1, card2] = flippedCards;
+                            if (card1.dataset.icon === card2.dataset.icon) {
+                                card1.classList.add('matched');
+                                card2.classList.add('matched');
+                                matchedPairs++;
+                                flippedCards = [];
+                                lockBoard = false;
+                                if (matchedPairs === iconSet.length) {
+                                    minigameFeedback.textContent = successMessage;
+                                    minigameFeedback.style.color = 'purple';
+                                    
+                                    // 미니게임 클리어 시 해당 오브젝트도 solved 처리
+                                    let gameObjId;
+                                    if (stageNum === 1) gameObjId = 's1-obj-box';
+                                    if (stageNum === 2) gameObjId = 's2-obj-piano';
+                                    if (stageNum === 3) gameObjId = 's3-obj-swing';
+                                    if(gameObjId) document.getElementById(gameObjId).classList.add('solved');
+                                }
+                            } else {
+                                setTimeout(() => {
+                                    card1.classList.remove('flipped');
+                                    card2.classList.remove('flipped');
+                                    flippedCards = [];
+                                    lockBoard = false;
+                                }, 1000);
+                            }
+                        }
+                    });
+                    memoryBoard.appendChild(cardElement);
+                });
             }
         });
     </script>
